@@ -33,7 +33,7 @@ Puppet::Type.type(:concat_fragment).provide :concat_fragment do
 
       FileUtils.mkdir_p("/var/lib/puppet/concat/fragments/#{group}")
       f = File.new("/var/lib/puppet/concat/fragments/#{group}/#{fragment}", "w")
-      f.puts @resource[:content]
+      f.print @resource[:content]
       f.close
     rescue Exception => e
       fail Puppet::Error, e

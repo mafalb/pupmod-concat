@@ -49,14 +49,17 @@ Puppet::Type.type(:concat_build ).provide :concat_build do
 		  # of the file out of memory as possible in the general case.
                   if @resource.sort? or not @resource[:unique].eql?(:false) then
                     input_lines.push(line)
+                  elsif String(@resource[:file_delimiter]).length > 0 then
+                    f.puts(line)
                   else
-		    f.puts(line)
+		    f.print(line)
                   end
                 end
 
               end
 
-              if not @resource.sort? and @resource[:unique].eql?(:false) then
+              if not @resource.sort? and @resource[:unique].eql?(:false) and 
+                  String(@resource[:file_delimiter]).length > 0 then
                 # Separate the files by the specified delimiter.
                 f.seek(-1, IO::SEEK_END)
                 if f.getc.chr.eql?("\n") then
@@ -90,13 +93,15 @@ Puppet::Type.type(:concat_build ).provide :concat_build do
           f.puts(input_lines.join(@resource[:file_delimiter]))
         else
           # Ensure that the end of the file is a '\n'
-          f.seek(-(String(@resource[:file_delimiter]).length), IO::SEEK_END)
-          curpos = f.pos
-          if not f.getc.chr.eql?("\n") then
-            f.seek(curpos)
-            f.print("\n")
+          if String(@resource[:file_delimiter]).length > 0 then
+            f.seek(-(String(@resource[:file_delimiter]).length), IO::SEEK_END)
+            curpos = f.pos
+            if not f.getc.chr.eql?("\n") then
+              f.seek(curpos)
+              f.print("\n")
+            end
+            f.truncate(f.pos)
           end
-          f.truncate(f.pos)
         end
 
         f.close
