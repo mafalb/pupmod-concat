@@ -31,11 +31,13 @@ Puppet::Type.type(:concat_build ).provide :concat_build do
         input_lines = Array.new
         Dir.chdir("/var/lib/puppet/concat/fragments/#{@resource[:name]}") do
           Array(@resource[:order]).flatten.each do |pattern|
-             Dir.glob(pattern).sort_by{ |k| human_sort(k) }.each do |file|
+            File.read(".fraglist").sort_by{ |k| human_sort(k) }.uniq.each do |file|
 
+              file = file.chomp
               prev_line = nil
+        
               File.open(file).each do |line|
-
+              
                 if @resource.squeeze_blank? and line =~ /^\s*$/ then
                   if prev_line == :whitespace then
                     next
@@ -69,6 +71,9 @@ Puppet::Type.type(:concat_build ).provide :concat_build do
                 end
               end
             end
+          
+            # Remove the fragment list file
+            File.delete(".fraglist")
           end
         end
 

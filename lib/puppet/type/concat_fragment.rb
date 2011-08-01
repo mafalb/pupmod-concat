@@ -29,10 +29,14 @@ Puppet::Type.newtype(:concat_fragment) do
     end
 
     def insync?(is)
-      return false
       group = @resource[:name].split('+').first
       fragment = @resource[:name].split('+')[1..-1].join('+')
       frag_file = "/var/lib/puppet/concat/fragments/#{group}/#{fragment}"
+
+      # Create a list with all used fragments.
+      fraglist = File.open("/var/lib/puppet/concat/fragments/#{group}/.fraglist",'a')
+      fraglist.puts fragment
+      fraglist.close
 
       if File.exist?(frag_file)
         data = File.read(frag_file)
