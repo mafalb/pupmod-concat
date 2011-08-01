@@ -30,10 +30,21 @@ Puppet::Type.type(:concat_build ).provide :concat_build do
         f = File.open("/var/lib/puppet/concat/output/#{@resource[:name]}.out", "w+")
         input_lines = Array.new
         Dir.chdir("/var/lib/puppet/concat/fragments/#{@resource[:name]}") do
+          
+          fragments = []
+          File.read(".fraglist").sort_by{ |k| human_sort(k) }.uniq.each do |file|
+            fragments.push(file.chomp)
+          end
+          
           Array(@resource[:order]).flatten.each do |pattern|
-            File.read(".fraglist").sort_by{ |k| human_sort(k) }.uniq.each do |file|
-
-              file = file.chomp
+            Dir.glob(pattern).sort_by{ |k| human_sort(k) }.each do |file|
+          
+              # Garbage Collection
+              if ! fragments.include? file then
+                File.delete(file)
+                next
+              end
+                
               prev_line = nil
         
               File.open(file).each do |line|

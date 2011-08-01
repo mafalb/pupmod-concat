@@ -29,7 +29,6 @@ Puppet::Type.newtype(:concat_fragment) do
     end
 
     def insync?(is)
-      return false
       group = @resource[:name].split('+').first
       fragment = @resource[:name].split('+')[1..-1].join('+')
       frag_file = "/var/lib/puppet/concat/fragments/#{group}/#{fragment}"
