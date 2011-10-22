@@ -34,6 +34,7 @@ Puppet::Type.newtype(:concat_fragment) do
       frag_file = "/var/lib/puppet/concat/fragments/#{group}/#{fragment}"
 
       # Create a list with all used fragments.
+      FileUtils.mkdir_p("/var/lib/puppet/concat/fragments/#{group}")
       fraglist = File.open("/var/lib/puppet/concat/fragments/#{group}/.fraglist",'a')
       fraglist.puts fragment
       fraglist.close
